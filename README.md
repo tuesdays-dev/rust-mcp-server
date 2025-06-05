@@ -23,7 +23,128 @@ Make sure you have Rust installed, then:
 cargo build --release
 ```
 
-## Usage
+## Usage with Claude Desktop App
+
+### Step 1: Build the Server
+
+First, build the server in release mode:
+
+```bash
+cargo build --release
+```
+
+This creates the executable at `target/release/rust-mcp-server` (or `target/release/rust-mcp-server.exe` on Windows).
+
+### Step 2: Configure Claude Desktop
+
+**Quick Setup**: Use the provided helper script to generate the configuration:
+
+```bash
+./claude_config_helper.sh
+```
+
+This script will show you the exact path and configuration to use.
+
+**Manual Setup**: Add the MCP server to your Claude Desktop configuration. The configuration file location depends on your operating system:
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+**Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+Add this configuration to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "rust-mcp-server": {
+      "command": "/full/path/to/your/rust-mcp/target/release/rust-mcp-server",
+      "args": ["--name", "rust-tools"],
+      "env": {}
+    }
+  }
+}
+```
+
+**Important**: Replace `/full/path/to/your/rust-mcp/` with the actual absolute path to your project directory.
+
+### Step 3: Example Configuration
+
+Here's a complete example configuration:
+
+```json
+{
+  "mcpServers": {
+    "rust-mcp-server": {
+      "command": "/Users/username/projects/rust-mcp/target/release/rust-mcp-server",
+      "args": ["--name", "rust-tools", "--debug"],
+      "env": {
+        "RUST_LOG": "debug"
+      }
+    }
+  }
+}
+```
+
+### Step 4: Restart Claude Desktop
+
+After adding the configuration:
+
+1. **Completely quit** Claude Desktop (not just close the window)
+2. **Restart** Claude Desktop
+3. Look for the 🔌 (plug) icon in the Claude interface, which indicates MCP servers are connected
+
+### Step 5: Using the Tools in Claude
+
+Once connected, you can ask Claude to use the tools:
+
+- **"Can you echo 'Hello World' for me?"** - Uses the echo tool
+- **"What's my system information?"** - Uses get_system_info
+- **"List the files in my current directory"** - Uses list_files
+- **"Read the contents of my README.md file"** - Uses read_file
+- **"Execute the 'date' command"** - Uses execute_command
+
+### Troubleshooting
+
+**Server not connecting:**
+- Verify the executable path is correct and absolute
+- Check that the executable has proper permissions (`chmod +x` on Unix systems)
+- Look at Claude Desktop's logs for error messages
+
+**Tools not working:**
+- Enable debug mode with `--debug` flag
+- Check the server logs for errors
+- Verify the current working directory has appropriate permissions
+
+**Finding the executable path:**
+```bash
+# From your project directory
+pwd && echo "/target/release/rust-mcp-server"
+# This will show you the full path to use in the config
+```
+
+### Advanced Configuration
+
+You can customize the server behavior with additional arguments:
+
+```json
+{
+  "mcpServers": {
+    "rust-mcp-server": {
+      "command": "/path/to/rust-mcp/target/release/rust-mcp-server",
+      "args": [
+        "--name", "my-rust-tools",
+        "--version", "1.0.0",
+        "--debug"
+      ],
+      "env": {
+        "RUST_LOG": "debug"
+      }
+    }
+  }
+}
+```
+
+## Command Line Usage
 
 ### Running the Server
 

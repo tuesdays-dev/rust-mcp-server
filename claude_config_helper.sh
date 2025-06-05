@@ -29,16 +29,13 @@ case "$(uname -s)" in
         CONFIG_PATH="~/Library/Application Support/Claude/claude_desktop_config.json"
         echo "   macOS: $CONFIG_PATH"
         ;;
-    Linux*)
-        CONFIG_PATH="~/.config/Claude/claude_desktop_config.json"
-        echo "   Linux: $CONFIG_PATH"
-        ;;
     CYGWIN*|MINGW32*|MSYS*|MINGW*)
         CONFIG_PATH="%APPDATA%\\Claude\\claude_desktop_config.json"
         echo "   Windows: $CONFIG_PATH"
         ;;
     *)
-        echo "   Unknown OS - please check Claude Desktop documentation"
+        echo "   ⚠️  Claude Desktop is only available for macOS and Windows"
+        echo "   Please use macOS or Windows to run Claude Desktop with MCP servers"
         ;;
 esac
 

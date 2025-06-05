@@ -51,7 +51,6 @@ This script will show you the exact path and configuration to use.
 
 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-**Linux**: `~/.config/Claude/claude_desktop_config.json`
 
 Add this configuration to your `claude_desktop_config.json`:
 

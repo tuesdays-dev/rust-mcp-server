@@ -25,6 +25,8 @@ cargo build --release
 
 ## Usage with Claude Desktop App
 
+> 🚀 **Quick Start**: See [CLAUDE_SETUP.md](CLAUDE_SETUP.md) for a streamlined setup guide!
+
 ### Step 1: Build the Server
 
 First, build the server in release mode:

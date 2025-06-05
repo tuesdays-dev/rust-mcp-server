@@ -4,6 +4,18 @@ version = "0.1.0"
 edition = "2021"
 authors = ["Your Name <your.email@example.com>"]
 description = "A Model Context Protocol (MCP) server implementation in Rust"
+license = "MIT"
+repository = "https://github.com/yourusername/rust-mcp-server"
+keywords = ["mcp", "model-context-protocol", "ai", "server", "tools"]
+categories = ["development-tools", "api-bindings"]
+
+[[bin]]
+name = "rust-mcp-server"
+path = "src/main.rs"
+
+[lib]
+name = "rust_mcp_server"
+path = "src/lib.rs"
 
 [dependencies]
 tokio = { version = "1.0", features = ["full"] }
@@ -18,3 +30,11 @@ uuid = { version = "1.0", features = ["v4"] }
 futures = "0.3"
 async-trait = "0.1"
 gethostname = "0.4"
+
+[dev-dependencies]
+tokio-test = "0.4"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"

@@ -2,10 +2,10 @@ use clap::Parser;
 use std::sync::Arc;
 use tracing::{info, warn};
 
-mod mcp;
-mod server;
-mod tools;
-mod types;
+pub mod mcp;
+pub mod server;
+pub mod tools;
+pub mod types;
 
 use mcp::McpServer;
 use server::StdioServer;

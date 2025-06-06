@@ -45,12 +45,14 @@ Ask Claude to:
   "mcpServers": {
     "rust-mcp-server": {
       "command": "/Users/username/projects/rust-mcp/target/release/rust-mcp-server",
-      "args": ["--name", "rust-tools"],
+      "args": ["--name", "rust-tools", "--quiet"],
       "env": {}
     }
   }
 }
 ```
+
+> ⚠️ **Important**: Always include `--quiet` flag to prevent log output from interfering with JSON responses.
 
 ## 🐛 Troubleshooting
 

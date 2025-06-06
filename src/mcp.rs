@@ -30,6 +30,8 @@ impl McpServer {
             "initialized" => self.handle_initialized().await,
             "tools/list" => self.handle_list_tools().await,
             "tools/call" => self.handle_call_tool(request.params).await,
+            "resources/list" => self.handle_list_resources().await,
+            "prompts/list" => self.handle_list_prompts().await,
             "ping" => self.handle_ping().await,
             _ => {
                 return Ok(JsonRpcResponse {
@@ -125,5 +127,15 @@ impl McpServer {
     
     async fn handle_ping(&self) -> Result<serde_json::Value> {
         Ok(serde_json::json!({"pong": true}))
+    }
+    
+    async fn handle_list_resources(&self) -> Result<serde_json::Value> {
+        // Return empty resources list since we don't implement resources yet
+        Ok(serde_json::json!({"resources": []}))
+    }
+    
+    async fn handle_list_prompts(&self) -> Result<serde_json::Value> {
+        // Return empty prompts list since we don't implement prompts yet
+        Ok(serde_json::json!({"prompts": []}))
     }
 }

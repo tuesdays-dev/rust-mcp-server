@@ -9,17 +9,21 @@ use tracing::{debug, error, info, warn};
 
 pub struct StdioServer {
     mcp_server: Arc<Mutex<McpServer>>,
+    quiet: bool,
 }
 
 impl StdioServer {
-    pub fn new(mcp_server: Arc<McpServer>) -> Self {
+    pub fn new(mcp_server: Arc<McpServer>, quiet: bool) -> Self {
         Self {
             mcp_server: Arc::new(Mutex::new((*mcp_server).clone())),
+            quiet,
         }
     }
     
     pub async fn run(&self) -> Result<()> {
-        info!("Starting stdio server");
+        if !self.quiet {
+            info!("Starting stdio server");
+        }
         
         let stdin = tokio::io::stdin();
         let mut stdout = tokio::io::stdout();
@@ -32,7 +36,9 @@ impl StdioServer {
             match reader.read_line(&mut line).await {
                 Ok(0) => {
                     // EOF reached
-                    info!("Client disconnected");
+                    if !self.quiet {
+                        info!("Client disconnected");
+                    }
                     break;
                 }
                 Ok(_) => {
@@ -59,7 +65,9 @@ impl StdioServer {
             }
         }
         
-        info!("Stdio server stopped");
+        if !self.quiet {
+            info!("Stdio server stopped");
+        }
         Ok(())
     }
     

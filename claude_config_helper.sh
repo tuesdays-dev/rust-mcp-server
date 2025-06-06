@@ -49,7 +49,7 @@ cat << EOF
   "mcpServers": {
     "rust-mcp-server": {
       "command": "$EXECUTABLE_PATH",
-      "args": ["--name", "rust-tools"],
+      "args": ["--name", "rust-tools", "--quiet"],
       "env": {}
     }
   }
@@ -65,10 +65,8 @@ cat << EOF
   "mcpServers": {
     "rust-mcp-server": {
       "command": "$EXECUTABLE_PATH",
-      "args": ["--name", "rust-tools", "--debug"],
-      "env": {
-        "RUST_LOG": "debug"
-      }
+      "args": ["--name", "rust-tools", "--quiet", "--debug"],
+      "env": {}
     }
   }
 }

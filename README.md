@@ -77,14 +77,14 @@ Here's a complete example configuration:
   "mcpServers": {
     "rust-mcp-server": {
       "command": "/Users/username/projects/rust-mcp/target/release/rust-mcp-server",
-      "args": ["--name", "rust-tools", "--debug"],
-      "env": {
-        "RUST_LOG": "debug"
-      }
+      "args": ["--name", "rust-tools", "--quiet"],
+      "env": {}
     }
   }
 }
 ```
+
+**Important**: Always include the `--quiet` flag when using with Claude Desktop to prevent log output from interfering with JSON responses.
 
 ### Step 4: Restart Claude Desktop
 
@@ -360,6 +360,10 @@ impl ToolHandler for MyTool {
 ```bash
 # Run tests
 cargo test
+
+# Test with Python client
+cd examples
+python3 test_client.py
 
 # Run with logging
 RUST_LOG=debug cargo test

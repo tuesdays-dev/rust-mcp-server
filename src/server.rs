@@ -50,13 +50,17 @@ impl StdioServer {
                     debug!("Received: {}", trimmed);
                     
                     let response = self.process_message(trimmed).await;
-                    let response_json = serde_json::to_string(&response)?;
                     
-                    debug!("Sending: {}", response_json);
-                    
-                    stdout.write_all(response_json.as_bytes()).await?;
-                    stdout.write_all(b"\n").await?;
-                    stdout.flush().await?;
+                    // Only send response if it's not None (notifications return None)
+                    if let Some(actual_response) = response {
+                        let response_json = serde_json::to_string(&actual_response)?;
+                        
+                        debug!("Sending: {}", response_json);
+                        
+                        stdout.write_all(response_json.as_bytes()).await?;
+                        stdout.write_all(b"\n").await?;
+                        stdout.flush().await?;
+                    }
                 }
                 Err(e) => {
                     error!("Error reading from stdin: {}", e);
@@ -71,43 +75,47 @@ impl StdioServer {
         Ok(())
     }
     
-    async fn process_message(&self, message: &str) -> JsonRpcResponse {
+    async fn process_message(&self, message: &str) -> Option<JsonRpcResponse> {
         // Parse the JSON-RPC request
         let request: JsonRpcRequest = match serde_json::from_str(message) {
             Ok(req) => req,
             Err(e) => {
                 warn!("Failed to parse JSON-RPC request: {}", e);
-                return JsonRpcResponse {
+                return Some(JsonRpcResponse {
                     jsonrpc: "2.0".to_string(),
                     id: None,
                     result: None,
                     error: Some(JsonRpcError::parse_error()),
-                };
+                });
             }
         };
         
         // Validate JSON-RPC version
         if request.jsonrpc != "2.0" {
-            return JsonRpcResponse {
+            return Some(JsonRpcResponse {
                 jsonrpc: "2.0".to_string(),
                 id: request.id,
                 result: None,
                 error: Some(JsonRpcError::invalid_request()),
-            };
+            });
         }
         
         // Handle the request
         let mut server = self.mcp_server.lock().await;
         match server.handle_request(request).await {
-            Ok(response) => response,
+            Ok(Some(response)) => Some(response),
+            Ok(None) => {
+                // No response needed (notification)
+                None
+            },
             Err(e) => {
                 error!("Error handling request: {}", e);
-                JsonRpcResponse {
+                Some(JsonRpcResponse {
                     jsonrpc: "2.0".to_string(),
                     id: None,
                     result: None,
                     error: Some(JsonRpcError::internal_error()),
-                }
+                })
             }
         }
     }

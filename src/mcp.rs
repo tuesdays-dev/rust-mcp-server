@@ -22,8 +22,14 @@ impl McpServer {
         }
     }
     
-    pub async fn handle_request(&mut self, request: JsonRpcRequest) -> Result<JsonRpcResponse> {
+    pub async fn handle_request(&mut self, request: JsonRpcRequest) -> Result<Option<JsonRpcResponse>> {
         debug!("Handling request: {} (id: {:?})", request.method, request.id);
+        
+        // Handle notifications (no response should be sent)
+        if request.method == "notifications/initialized" {
+            self.handle_initialized().await?;
+            return Ok(None); // No response for notifications
+        }
         
         let result = match request.method.as_str() {
             "initialize" => self.handle_initialize(request.params).await,
@@ -34,30 +40,30 @@ impl McpServer {
             "prompts/list" => self.handle_list_prompts().await,
             "ping" => self.handle_ping().await,
             _ => {
-                return Ok(JsonRpcResponse {
+                return Ok(Some(JsonRpcResponse {
                     jsonrpc: "2.0".to_string(),
                     id: request.id,
                     result: None,
                     error: Some(JsonRpcError::method_not_found()),
-                });
+                }));
             }
         };
         
         match result {
-            Ok(value) => Ok(JsonRpcResponse {
+            Ok(value) => Ok(Some(JsonRpcResponse {
                 jsonrpc: "2.0".to_string(),
                 id: request.id,
                 result: Some(value),
                 error: None,
-            }),
+            })),
             Err(e) => {
                 debug!("Request error: {}", e);
-                Ok(JsonRpcResponse {
+                Ok(Some(JsonRpcResponse {
                     jsonrpc: "2.0".to_string(),
                     id: request.id,
                     result: None,
                     error: Some(JsonRpcError::internal_error()),
-                })
+                }))
             }
         }
     }

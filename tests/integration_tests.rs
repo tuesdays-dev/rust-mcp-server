@@ -20,7 +20,7 @@ async fn test_mcp_server_initialization() {
         })),
     };
     
-    let response = server.handle_request(init_request).await.unwrap();
+    let response = server.handle_request(init_request).await.unwrap().unwrap();
     
     assert_eq!(response.jsonrpc, "2.0");
     assert_eq!(response.id, Some(json!(1)));
@@ -41,7 +41,7 @@ async fn test_list_tools() {
         params: None,
     };
     
-    let response = server.handle_request(request).await.unwrap();
+    let response = server.handle_request(request).await.unwrap().unwrap();
     
     assert_eq!(response.jsonrpc, "2.0");
     assert_eq!(response.id, Some(json!(2)));
@@ -79,7 +79,7 @@ async fn test_echo_tool() {
         })),
     };
     
-    let response = server.handle_request(request).await.unwrap();
+    let response = server.handle_request(request).await.unwrap().unwrap();
     
     assert_eq!(response.jsonrpc, "2.0");
     assert_eq!(response.id, Some(json!(3)));
@@ -109,7 +109,7 @@ async fn test_method_not_found() {
         params: None,
     };
     
-    let response = server.handle_request(request).await.unwrap();
+    let response = server.handle_request(request).await.unwrap().unwrap();
     
     assert_eq!(response.jsonrpc, "2.0");
     assert_eq!(response.id, Some(json!(4)));
@@ -132,7 +132,7 @@ async fn test_ping() {
         params: None,
     };
     
-    let response = server.handle_request(request).await.unwrap();
+    let response = server.handle_request(request).await.unwrap().unwrap();
     
     assert_eq!(response.jsonrpc, "2.0");
     assert_eq!(response.id, Some(json!(5)));

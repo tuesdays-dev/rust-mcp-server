@@ -108,7 +108,138 @@ class McpClient:
         """Ping the server"""
         return self.send_request("ping")
 
+
+def test_server_initialization(client: McpClient) -> bool:
+    """Test server initialization sequence."""
+    print("\n1. Initializing server...")
+    response = client.initialize()
+    if "error" in response:
+        print(f"❌ Error: {response['error']}")
+        return False
+
+    print("✅ Server initialized successfully")
+    print(f"   Protocol: {response.get('result', {}).get('protocolVersion', 'unknown')}") 
+    print(f"   Server: {response.get('result', {}).get('serverInfo', {}).get('name', 'unknown')}")
+
+    print("\n2. Confirming initialization...")
+    response = client.initialized()
+    if "error" in response:
+        print(f"❌ Error: {response['error']}")
+        return False
+
+    print("✅ Initialization confirmed")
+    return True
+
+
+def test_list_tools(client: McpClient) -> bool:
+    """Test listing available tools."""
+    print("\n3. Listing available tools...")
+    response = client.list_tools()
+    if "error" in response:
+        print(f"❌ Error: {response['error']}")
+        return False
+
+    if "result" in response and "tools" in response["result"]:
+        tools = response["result"]["tools"]
+        print(f"✅ Found {len(tools)} tools:")
+        for tool in tools:
+            print(f"   - {tool['name']}: {tool['description']}")
+
+    return True
+
+
+def test_echo_tool(client: McpClient) -> bool:
+    """Test the echo tool."""
+    print("\n4. Testing echo tool...")
+    response = client.call_tool("echo", {"text": "Hello from Python client!"})
+    if "error" in response:
+        print(f"❌ Error: {response['error']}")
+        return False
+
+    if "result" in response:
+        content = response["result"].get("content", [])
+        if content and content[0].get("type") == "text":
+            print(f"✅ Echo response: {content[0]['text']}")
+        else:
+            print("✅ Echo tool called successfully")
+
+    return True
+
+
+def test_system_info(client: McpClient) -> bool:
+    """Test getting system information."""
+    print("\n5. Getting system information...")
+    response = client.call_tool("get_system_info", {})
+    if "error" in response:
+        print(f"❌ Error: {response['error']}")
+        return False
+
+    if "result" in response:
+        content = response["result"].get("content", [])
+        if content and content[0].get("type") == "text":
+            # Just show first line of system info
+            sys_info = content[0]["text"].split("\n")[0]
+            print(f"✅ {sys_info}")
+        else:
+            print("✅ System info retrieved successfully")
+
+    return True
+
+
+def test_file_listing(client: McpClient) -> bool:
+    """Test file listing functionality."""
+    print("\n6. Listing files in current directory...")
+    response = client.call_tool("list_files", {"path": "../"})
+    if "error" in response:
+        print(f"❌ Error: {response['error']}")
+        return False
+
+    if "result" in response:
+        content = response["result"].get("content", [])
+        if content and content[0].get("type") == "text":
+            lines = content[0]["text"].split("\n")
+            file_count = len([l for l in lines if l.strip() and not l.startswith("Files in")])
+            print(f"✅ Listed files - found {file_count} items")
+        else:
+            print("✅ File listing completed successfully")
+
+    return True
+
+
+def test_ping(client: McpClient) -> bool:
+    """Test server ping functionality."""
+    print("\n7. Testing ping...")
+    response = client.ping()
+    if "error" in response:
+        print(f"❌ Error: {response['error']}")
+        return False
+
+    if "result" in response and response["result"].get("pong"):
+        print("✅ Pong! Server is responsive")
+
+    return True
+
+
+def run_all_tests(client: McpClient) -> bool:
+    """Run all test functions in sequence."""
+    test_functions = [
+        test_server_initialization,
+        test_list_tools,
+        test_echo_tool,
+        test_system_info,
+        test_file_listing,
+        test_ping,
+    ]
+    
+    for test_func in test_functions:
+        if not test_func(client):
+            return False
+    
+    return True
+
+
 def main() -> None:
+    """Main function - simplified and delegated to smaller functions."""
     print("Rust MCP Server - Python Test Client")
     print("=" * 40)
     
@@ -120,83 +251,15 @@ def main() -> None:
         return
     
     try:
-        # Test sequence
-        print("\n1. Initializing server...")
-        response = client.initialize()
-        if "error" in response:
-            print(f"❌ Error: {response['error']}")
+        if run_all_tests(client):
+            print("\n🎉 All tests completed successfully!")
         else:
-            print("✅ Server initialized successfully")
-            print(f"   Protocol: {response.get('result', {}).get('protocolVersion', 'unknown')}")
-            print(f"   Server: {response.get('result', {}).get('serverInfo', {}).get('name', 'unknown')}")
-        
-        print("\n2. Confirming initialization...")
-        response = client.initialized()
-        if "error" in response:
-            print(f"❌ Error: {response['error']}")
-        else:
-            print("✅ Initialization confirmed")
-        
-        print("\n3. Listing available tools...")
-        response = client.list_tools()
-        if "error" in response:
-            print(f"❌ Error: {response['error']}")
-        elif "result" in response and "tools" in response["result"]:
-            tools = response["result"]["tools"]
-            print(f"✅ Found {len(tools)} tools:")
-            for tool in tools:
-                print(f"   - {tool['name']}: {tool['description']}")
-        
-        print("\n4. Testing echo tool...")
-        response = client.call_tool("echo", {"text": "Hello from Python client!"})
-        if "error" in response:
-            print(f"❌ Error: {response['error']}")
-        elif "result" in response:
-            content = response["result"].get("content", [])
-            if content and content[0].get("type") == "text":
-                print(f"✅ Echo response: {content[0]['text']}")
-            else:
-                print("✅ Echo tool called successfully")
-        
-        print("\n5. Getting system information...")
-        response = client.call_tool("get_system_info", {})
-        if "error" in response:
-            print(f"❌ Error: {response['error']}")
-        elif "result" in response:
-            content = response["result"].get("content", [])
-            if content and content[0].get("type") == "text":
-                # Just show first line of system info
-                sys_info = content[0]["text"].split("\n")[0]
-                print(f"✅ {sys_info}")
-            else:
-                print("✅ System info retrieved successfully")
-        
-        print("\n6. Listing files in current directory...")
-        response = client.call_tool("list_files", {"path": "../"})
-        if "error" in response:
-            print(f"❌ Error: {response['error']}")
-        elif "result" in response:
-            content = response["result"].get("content", [])
-            if content and content[0].get("type") == "text":
-                lines = content[0]["text"].split("\n")
-                file_count = len([l for l in lines if l.strip() and not l.startswith("Files in")])
-                print(f"✅ Listed files - found {file_count} items")
-            else:
-                print("✅ File listing completed successfully")
-        
-        print("\n7. Testing ping...")
-        response = client.ping()
-        if "error" in response:
-            print(f"❌ Error: {response['error']}")
-        elif "result" in response and response["result"].get("pong"):
-            print("✅ Pong! Server is responsive")
-        
-        print("\n🎉 All tests completed successfully!")
-        
+            print("\n❌ Some tests failed.")
     finally:
         # Clean up
         print("\nStopping server...")
         client.stop_server()
+
 
 if __name__ == "__main__":
     main()
